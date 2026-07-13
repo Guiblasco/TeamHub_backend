@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+case "$branch" in
+  feature/TH-*)
+    echo "✔ Branch válida"
+    ;;
+  develop)
+    ;;
+  main)
+    ;;
+  *)
+    echo ""
+    echo "❌ Rama incorrecta"
+    echo ""
+    echo "Usa:"
+    echo "feature/TH-001-project-setup"
+    echo ""
+    exit 1
+    ;;
+esac
