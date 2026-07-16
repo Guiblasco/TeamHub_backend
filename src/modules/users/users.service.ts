@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 import * as bcrypt from 'bcrypt';
 
@@ -33,12 +33,16 @@ export class UsersService {
     return this.prismaService.user.findMany();
   }
 
-  findOne(id: string) {
-    return this.prismaService.user.findUnique({
+  async findOne(id: string) {
+    const existingUser = await this.prismaService.user.findUnique({
       where: {
         id,
       },
     });
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+    return existingUser;
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
@@ -58,7 +62,6 @@ export class UsersService {
     });
   }
 
-  // Lo reutilizaremos desde Auth
   findByEmail(email: string) {
     return this.prismaService.user.findUnique({
       where: {
