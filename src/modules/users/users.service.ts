@@ -8,13 +8,15 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    const { password, ...userData } = createUserDto;
+
+    const hashedPassword = await this.hashPassword(password);
+
     return this.prismaService.user.create({
       data: {
-        name: createUserDto.name,
-        lastName: createUserDto.lastName,
-        email: createUserDto.email,
-        password: createUserDto.password,
+        ...userData,
+        password: hashedPassword,
       },
     });
   }
