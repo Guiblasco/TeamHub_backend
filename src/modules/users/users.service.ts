@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ConflictException, NotFoundException } from '@nestjs/common';
-
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -45,7 +47,20 @@ export class UsersService {
     return existingUser;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    await this.findOne(id);
+
+    if (updateUserDto.email) {
+      const existingUser = await this.findByEmail(updateUserDto.email);
+
+      if (existingUser && existingUser.id !== id) {
+        throw new ConflictException('A user with this email already exists');
+      }
+    }
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await this.hashPassword(updateUserDto.password);
+    }
     return this.prismaService.user.update({
       where: {
         id,
@@ -54,7 +69,8 @@ export class UsersService {
     });
   }
 
-  remove(id: string) {
+  async remove(id: string) {
+    await this.findOne(id);
     return this.prismaService.user.delete({
       where: {
         id,
@@ -62,7 +78,7 @@ export class UsersService {
     });
   }
 
-  findByEmail(email: string) {
+  async findByEmail(email: string) {
     return this.prismaService.user.findUnique({
       where: {
         email,
