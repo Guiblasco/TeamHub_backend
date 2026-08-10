@@ -12,12 +12,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default tseslint.config(
   {
     ignores: [
-      'dist/**',
-      'coverage/**',
-      'node_modules/**',
-      'eslint.config.mjs',
-      'commitlint.config.cjs',
-    ],
+  'dist/**',
+  'coverage/**',
+  'node_modules/**',
+  'eslint.config.mjs',
+  'commitlint.config.cjs',
+  'jest.config.js',
+],
   },
 
   eslint.configs.recommended,
