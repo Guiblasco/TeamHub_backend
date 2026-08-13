@@ -11,6 +11,15 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
+  private readonly userSelect = {
+    id: true,
+    name: true,
+    lastName: true,
+    email: true,
+    role: true,
+    createdAt: true,
+    updatedAt: true,
+  };
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.findByEmail(createUserDto.email);
@@ -28,11 +37,14 @@ export class UsersService {
         ...userData,
         password: hashedPassword,
       },
+      select: this.userSelect,
     });
   }
 
   findAll() {
-    return this.prismaService.user.findMany();
+    return this.prismaService.user.findMany({
+      select: this.userSelect,
+    });
   }
 
   async findOne(id: string) {
@@ -40,6 +52,7 @@ export class UsersService {
       where: {
         id,
       },
+      select: this.userSelect,
     });
     if (!existingUser) {
       throw new NotFoundException('User not found');
@@ -66,6 +79,7 @@ export class UsersService {
         id,
       },
       data: updateUserDto,
+      select: this.userSelect,
     });
   }
 
@@ -75,6 +89,7 @@ export class UsersService {
       where: {
         id,
       },
+      select: this.userSelect,
     });
   }
 
